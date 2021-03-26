@@ -1,0 +1,82 @@
+-- Suppression de la base de données si elle existe
+DROP DATABASE IF EXISTS vaccination_swiss;
+-- Création de la base de données
+CREATE DATABASE vaccination_swiss;
+
+-- Utiliser la base de données 'vaccination_swiss' pour les requêtes suivantes
+USE vaccination_swiss;
+
+-- Suppression et création des tables ainsi que leurs colonnes avec les clés primaires
+DROP TABLE IF EXISTS patient;
+CREATE TABLE patient (
+    numero_id INT NOT NULL,
+    date_de_naissance DATE NOT NULL,
+    maladie_chronique TINYINT(1) NOT NULL,
+    sexe VARCHAR(1) NOT NULL,
+    date_vaccin DATE NOT NULL,
+    groupe TINYINT(1) NOT NULL,
+    deja_malade_covid TINYINT(1) NOT NULL,
+    id_vaccin INT NOT NULL,
+    PRIMARY KEY (numero_id));
+
+DROP TABLE IF EXISTS vaccin;
+CREATE TABLE vaccin (
+    id_vaccin INT NOT NULL,
+    marque_vaccin VARCHAR(50) NOT NULL,
+    efficacite_vaccin FLOAT NULL,    -- à regarder car pas de données --
+    date_de_livraison DATE NOT NULL,
+    technoligie_vaccin VARCHAR(50) NOT NULL,
+    autorisation_swissmedic TINYINT(1) NOT NULL,
+    PRIMARY KEY (id_vaccin));
+
+DROP TABLE IF EXISTS demographie;
+CREATE TABLE demographie (
+    code_postal INT NOT NULL,
+    canton VARCHAR(2) NOT NULL,
+    population_swiss INT NOT NULL, -- à changer dans model relationnel drawio et class
+    PRIMARY KEY (code_postal));
+
+DROP TABLE IF EXISTS infection;
+CREATE TABLE infection (
+    date_infection DATE NOT NULL,
+    nombre_de_cas INT NOT NULL,
+    nombre_de_cas_cumule INT NOT NULL,
+    taux_de_reproduction FLOAT NOT NULL,
+    taux_infection FLOAT NOT NULL, 
+    taux_de_deces FLOAT NOT NULL,
+    tauc_de_test_positif FLOAT NOT NULL,
+    hospitalisation INT NOT NULL,
+    lit_occupe_si INT NOT NULL,
+    code_postal INT NOT NULL,
+    PRIMARY KEY (date_infection));
+
+DROP TABLE IF EXISTS campagne;
+CREATE TABLE campagne (
+    semaine_vaccination INT NOT NULL,
+    numero_id INT NOT NULL,
+    code_postal INT NOT NULL,
+    id_vaccin INT NOT NULL,
+    taux_de_distribution FLOAT NOT NULL,
+    taux_de_vaccination FLOAT NOT NULL,
+    PRIMARY KEY (semaine_vaccination, numero_id, code_postal, id_vaccin));
+
+-- Ajouter les contraintes de clés étrangères sur les différentes tables
+ALTER TABLE facture 
+    ADD CONSTRAINT fk_facture_client 
+    FOREIGN KEY (numero_client) 
+    REFERENCES client (numero_client);
+
+ALTER TABLE produit 
+    ADD CONSTRAINT fk_produit_categorie
+    FOREIGN KEY (numero_categorie) 
+    REFERENCES categorie (numero_categorie);
+
+ALTER TABLE ligne_facture 
+    ADD CONSTRAINT fk_ligne_facture_facture
+    FOREIGN KEY (numero_facture) 
+    REFERENCES facture (numero_facture);
+
+ALTER TABLE ligne_facture 
+    ADD CONSTRAINT fk_ligne_facture_produit
+    FOREIGN KEY (numero_produit) 
+    REFERENCES produit (numero_produit);
